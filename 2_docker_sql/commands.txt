@@ -20,6 +20,7 @@ ls -ld ny_taxi_postgres_data
 
 jupyter nbconvert --to=script upload_data.ipynb  (convert upload_data.ipynb to .py file)
 
+connect to the postgres database
 postgres db:
 docker run -it \
   -e POSTGRES_USER="postgres" \
@@ -36,6 +37,10 @@ docker run -it \
   -e PGADMIN_DEFAULT_PASSWORD="pgadmin" \
   -p 8080:80 \
   dpage/pgadmin4
+
+
+pgcli -h localhost -p 5433 -u postgres -d ny_taxi
+
 
 network:
 docker network create pg-network 
@@ -62,7 +67,7 @@ docker run -it \
   dpage/pgadmin4
 
 
-pgcli -h localhost -p 5433 -u postgres -d ny_taxi
+
 
 less file_name    (to open file_name)
 wc -l filename  (count number of lines in filename)
@@ -87,7 +92,7 @@ docker run -it \
     taxi_ingest:v001 \
         --user=postgres \
         --password=postgres \
-        --host=pg-database \
+        --host=localhost \
         --port=5432 \
         --db=ny_taxi \
         --table_name=green_taxi_trips \

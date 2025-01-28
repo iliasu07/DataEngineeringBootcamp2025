@@ -23,9 +23,10 @@ def main(params):
     # os.system(f"wget {url} -O {csv_name}")
     subprocess.run(["wget", url, "-O", csv_name], check=True)
 
-    engine = create_engine(f'postgresql://{user}:{password}@{host}:{port}/{db}', pool_pre_ping=True)
+    engine = create_engine(f'postgresql://{user}:{password}@{host}:{port}/{db}', pool_use_lifo=True, pool_pre_ping=True)
 
-    df_iter = pd.read_csv(csv_name, iterator=True, chunksize=100000, compression="gzip")
+    compress = 'gzip' if csv_name.endswith('.gz') else None
+    df_iter = pd.read_csv(csv_name, iterator=True, chunksize=100000, compression=compress)
     df = next(df_iter)
 
     df.lpep_pickup_datetime = pd.to_datetime(df.lpep_pickup_datetime)

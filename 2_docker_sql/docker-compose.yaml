@@ -9,7 +9,7 @@ services:
     ports:
       - '5433:5432'
     volumes:
-      - vol-pgdata:/var/lib/postgresql/data
+      - "./ny_taxi_postgres_data:/var/lib/postgresql/data:rw"
 
   pgadmin:
     container_name: pgadmin
@@ -19,11 +19,3 @@ services:
       PGADMIN_DEFAULT_PASSWORD: "pgadmin"
     ports:
       - "8080:80"
-    volumes:
-      - vol-pgadmin_data:/var/lib/pgadmin  
-
-volumes:
-  vol-pgdata:
-    name: vol-pgdata
-  vol-pgadmin_data:
-    name: vol-pgadmin_data
