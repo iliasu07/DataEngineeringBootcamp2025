@@ -8,7 +8,15 @@ Homework - 1:
 
 URL="https://github.com/DataTalksClub/nyc-tlc-data/releases/download/green/green_tripdata_2019-10.csv.gz"
 
-sudo rm -rf ny_taxi_postgres_data
+sudo rm -rf ny_taxi_postgres_data                        to remove
+sudo chmod a+rwx ny_taxi_postgres_data                   to change the mode
+sudo chmod -R a+rwx ny_taxi_postgres_data                recursive permission
+sudo chmod -R 777 ny_taxi_postgres_data
+
+sudo chown -R $(id -u):$(id -g) ny_taxi_postgres_data    Ensure the directory is owned by your current user (codespace) so Docker containers don't interfere with the permissions:
+ls -ld ny_taxi_postgres_data
+
+
 
 jupyter nbconvert --to=script upload_data.ipynb  (convert upload_data.ipynb to .py file)
 
@@ -60,6 +68,7 @@ less file_name    (to open file_name)
 wc -l filename  (count number of lines in filename)
 head -n 100 file_name > new_file_name  (to save first 100 lines in filename into new_file_name)
 
+URL="https://github.com/DataTalksClub/nyc-tlc-data/releases/download/green/green_tripdata_2019-10.csv.gz"
 
 python ingest_data.py \
   --user=postgres \
