@@ -32,7 +32,8 @@ resource "google_storage_bucket" "demo-bucket" {
 
 
 
-resource "google_bigquery_dataset" "demo_dataset" {
+resource "google_bigquery_dataset" "demo-dataset" {
   dataset_id = var.bq_dataset_name
+  project    = var.project
   location   = var.location
 }

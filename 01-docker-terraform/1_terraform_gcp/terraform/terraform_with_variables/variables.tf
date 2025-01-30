@@ -5,11 +5,11 @@ variable "credentials" {
   #saved there as my-creds.json you could use default = "./keys/my-creds.json"
 }
 
-
+ 
 variable "project" {
   description = "My first GCP Project"
   default     = "corded-aquifer-448117-p6"
-}
+} 
 
 variable "region" {
   description = "Region"
