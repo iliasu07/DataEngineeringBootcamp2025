@@ -2,3 +2,152 @@ terraform init
 terraform plan
 terraform apply
 terraform destroy 
+
+C:\Users\salas\.ssh\config
+ssh -i ~/.ssh/gcp iliasu@34.32.78.220
+ssh de-zoomcamp    (directly to access ssh conection using the config file details)
+
+ The account created has the login airflow and the password airflow
+
+
+***Running the CLI commands
+docker compose run airflow-worker airflow info
+curl -LfO 'https://airflow.apache.org/docs/apache-airflow/2.10.4/airflow.sh'
+chmod +x airflow.sh
+./airflow.sh info
+./airflow.sh bash
+./airflow.sh python
+
+
+
+***Accessing the web interface
+Once the cluster has started up, you can log in to the web interface and begin experimenting with DAGs.
+The webserver is available at: http://localhost:8080. The default account has the login airflow and the password airflow
+
+
+
+***cleaning up
+docker compose down --volumes --rmi all
+
+docker compose down --remove-orphans
+
+docker volume rm airflow_postgres-db-volume
+
+docker volume rm airflow_postgres-db-volume
+
+
+
+echo -e "AIRFLOW_UID=$(id -u)" > .env
+
+
+
+
+
+
+
+
+
+
+
+
+
+Accessing the environment
+After starting Airflow, you can interact with it in 3 ways:
+
+by running CLI commands.
+
+via a browser using the web interface.
+
+using the REST API.
+
+Running the CLI commands
+You can also run CLI commands, but you have to do it in one of the defined airflow-* services. For example, to run airflow info, run the following command:
+
+docker compose run airflow-worker airflow info
+If you have Linux or Mac OS, you can make your work easier and download a optional wrapper scripts that will allow you to run commands with a simpler command.
+
+curl -LfO 'https://airflow.apache.org/docs/apache-airflow/2.10.4/airflow.sh'
+chmod +x airflow.sh
+Now you can run commands easier.
+
+./airflow.sh info
+You can also use bash as parameter to enter interactive bash shell in the container or python to enter python container.
+
+./airflow.sh bash
+./airflow.sh python
+Accessing the web interface
+Once the cluster has started up, you can log in to the web interface and begin experimenting with DAGs.
+
+The webserver is available at: http://localhost:8080. The default account has the login airflow and the password airflow.
+
+Sending requests to the REST API
+Basic username password authentication is currently supported for the REST API, which means you can use common tools to send requests to the API.
+
+The webserver is available at: http://localhost:8080. The default account has the login airflow and the password airflow.
+
+Here is a sample curl command, which sends a request to retrieve a pool list:
+
+ENDPOINT_URL="http://localhost:8080/"
+curl -X GET  \
+    --user "airflow:airflow" \
+    "${ENDPOINT_URL}/api/v1/pools"
+Cleaning up
+To stop and delete containers, delete volumes with database data and download images, run:
+
+docker compose down --volumes --rmi all
+Using custom images
+When you want to run Airflow locally, you might want to use an extended image, containing some additional dependencies - for example you might add new python packages, or upgrade airflow providers to a later version. This can be done very easily by specifying build: . in your docker-compose.yaml and placing a custom Dockerfile alongside your docker-compose.yaml. Then you can use docker compose build command to build your image (you need to do it only once). You can also add the --build flag to your docker compose commands to rebuild the images on-the-fly when you run other docker compose commands.
+
+Examples of how you can extend the image with custom providers, python packages, apt packages and more can be found in Building the image.
+
+Note
+
+Creating custom images means that you need to maintain also a level of automation as you need to re-create the images when either the packages you want to install or Airflow is upgraded. Please do not forget about keeping these scripts. Also keep in mind, that in cases when you run pure Python tasks, you can use the Python Virtualenv functions which will dynamically source and install python dependencies during runtime. With Airflow 2.8.0 Virtualenvs can also be cached.
+
+Special case - adding dependencies via requirements.txt file
+Usual case for custom images, is when you want to add a set of requirements to it - usually stored in requirements.txt file. For development, you might be tempted to add it dynamically when you are starting the original airflow image, but this has a number of side effects (for example your containers will start much slower - each additional dependency will further delay your containers start up time). Also it is completely unnecessary, because docker compose has the development workflow built-in. You can - following the previous chapter, automatically build and use your custom image when you iterate with docker compose locally. Specifically when you want to add your own requirement file, you should do those steps:
+
+Comment out the image: ... line and remove comment from the build: . line in the docker-compose.yaml file. The relevant part of the docker-compose file of yours should look similar to (use correct image tag):
+
+#image: ${AIRFLOW_IMAGE_NAME:-apache/airflow:2.10.4}
+build: .
+Create Dockerfile in the same folder your docker-compose.yaml file is with content similar to:
+
+FROM apache/airflow:2.10.4
+ADD requirements.txt .
+RUN pip install apache-airflow==${AIRFLOW_VERSION} -r requirements.txt
+It is the best practice to install apache-airflow in the same version as the one that comes from the original image. This way you can be sure that pip will not try to downgrade or upgrade apache airflow while installing other requirements, which might happen in case you try to add a dependency that conflicts with the version of apache-airflow that you are using.
+
+Place requirements.txt file in the same directory.
+
+Run docker compose build to build the image, or add --build flag to docker compose up or docker compose run commands to build the image automatically as needed.
+
+Special case - Adding a custom config file
+If you have a custom config file and wish to use it in your Airflow instance, you need to perform the following steps:
+
+Remove comment from the AIRFLOW_CONFIG: '/opt/airflow/config/airflow.cfg' line in the docker-compose.yaml file.
+
+Place your custom airflow.cfg file in the local config folder.
+
+If your config file has a different name than airflow.cfg, adjust the filename in AIRFLOW_CONFIG: '/opt/airflow/config/airflow.cfg'
+
+Networking
+In general, if you want to use Airflow locally, your DAGs may try to connect to servers which are running on the host. In order to achieve that, an extra configuration must be added in docker-compose.yaml. For example, on Linux the configuration must be in the section services: airflow-worker adding extra_hosts: - "host.docker.internal:host-gateway"; and use host.docker.internal instead of localhost. This configuration vary in different platforms. Please check the Docker documentation for Windows and Mac for further information.
+
+Debug Airflow inside docker container using PyCharm
+Prerequisites: Create a project in PyCharm and download the (docker-compose.yaml).
+
+Steps:
+
+Modify docker-compose.yaml
+
+Add the following section under the services section:
+
+airflow-python:
+<<: *airflow-common
+profiles:
+    - debug
+environment:
+    <<: *airflow-common-env
+user: "50000:0"
+entrypoint: [ "/bin/bash", "-c" ]

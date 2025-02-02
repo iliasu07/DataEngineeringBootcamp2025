@@ -9,7 +9,7 @@ terraform {
  
 provider "google" {
 # Credentials only needs to be set if you do not have the GOOGLE_APPLICATION_CREDENTIALS set
-  credentials = "./my-creds.json"
+  credentials = "./my-creds.json" # "/workspaces/DataEngineeringBootcamp2025/google_credentials.json"
   project = "corded-aquifer-448117-p6"
   region  = "eu-central1"
 }
